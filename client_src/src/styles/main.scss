@@ -1,0 +1,9 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap";
+
+body {
+    background-color: $default-background;
+    color: $default-foreground;
+    font-family: $default-font-family;
+    font-size: $default-font-size; 
+}
