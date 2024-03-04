@@ -10,3 +10,4 @@ warp = "0.3.6"
 parking_lot = "0.12.1"
 serde = { version = "1.0.197", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
+chrono = { version = "0.4.34", features = ["serde"] }

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 </script>
 <template>
-    Dashboard
+    Welcome!
 </template>
 <style scoped>
 </style>

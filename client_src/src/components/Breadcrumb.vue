@@ -1,56 +1,47 @@
 <script lang="ts" setup>
     import { ref, watch } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-    
-    const router = useRouter(),
-        activeRoute = useRoute(), 
-        breadcrumbs = ref<any[]>([]),
-        routes = router.getRoutes();
+    import { useRoute } from 'vue-router';
 
-    const getNextIndex = (index: number, lengthOfPath: number) => {
-        return index === undefined ? lengthOfPath : index;
-    };
-    
-    const pathLength = (fullPath: string) => {
-        const pathsIndex: number[] = [];
-        for(let i = 0; i < fullPath.length; i++) {
-            if(fullPath[i] === '/') {
-                pathsIndex.push(i);
-            }
-        }
-        return pathsIndex;
-    }; 
+    const route = useRoute(),
+        breadcrumbs = ref<any[]>([]);
 
-    const buildBreadCrumbs = (fullPath: string) => {
-        const pathsIndex = pathLength(fullPath);
+    watch(route, (to) => {
+        const breads: any[] = [], 
+        items: any[] = route.fullPath.split('/');
+        items.shift();
 
-        for (let i = 0; i < pathsIndex.length; i++) {
-            const nextIndex = getNextIndex(pathsIndex[i + 1], fullPath.length),
-                path = fullPath.substring(0, nextIndex),
-                route = routes.find(p => p.path === path);
-                
-            breadcrumbs.value.push({
-                path: path, 
-                meta: route?.meta
+        breadcrumbs.value= items.reduce((breadcrumbArray, path, idx) => {
+            breadcrumbArray.push({
+                path: path,
+                to: breadcrumbArray[idx - 1]
+                    ? "/" + breadcrumbArray[idx - 1].path + "/" + path
+                    : "/" + path,
+                text: to.matched[idx].meta.title || path,
             });
-        }
-    }; 
-
-
-    watch(activeRoute, (newValue, oldValue) => {
-        buildBreadCrumbs(newValue.fullPath);
+            return breadcrumbArray;
+        }, [])
     });
 
 </script>
 <template>
-    {{ breadcrumbs  }}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item" v-for="breadcrumb in breadcrumbs">
-                <a v-bind:href="breadcrumb.path">
-                    {{ breadcrumb.meta?.title }}
-                </a>
+            <li class="breadcrumb-item" v-for="(breadcrumb, index) in breadcrumbs">
+                <template v-if="index < breadcrumbs.length - 1">
+                    <a v-bind:href="breadcrumb.to">
+                        {{ breadcrumb.text }}
+                    </a>
+                </template>
+                <template v-else>
+                    {{ breadcrumb.text }}
+                </template>
             </li>
         </ol>
     </nav>
 </template>
+<style lang="scss">
+    .breadcrumb {
+        font-size: 0.8em;
+        margin: 8px 0px;
+    }
+</style>

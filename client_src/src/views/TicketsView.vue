@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-    
+    import { RouterView } from 'vue-router';
 </script>
 <template>
-    <h1>Tickets</h1>
-    <p>
-        LAB!!
-        <RouterLink :to="{ path: '/tickets/123'}" replace>TEST</RouterLink>
-    </p>
+    <RouterView />
 </template>

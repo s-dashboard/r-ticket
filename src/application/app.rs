@@ -8,9 +8,16 @@ pub async fn app() {
 
     let wwwroot = current_dir.as_path().join("wwwroot").to_path_buf();
 
-    let routes = root_redirect()
-        .or(warp::fs::dir(wwwroot));
+    let get_tickets = warp::get()
+        .and(warp::path("api"))
+        .and(warp::path("tickets"))
+        .and(warp::path::end())
+        .and_then(super::tickets::tickets_list); 
 
+    let routes = root_redirect()
+        .or(get_tickets)
+        .or(warp::fs::dir(wwwroot));
+        
     // Server the filter
     warp::serve(routes)
         .run(([127, 0, 0, 1], 3030))
@@ -33,24 +40,4 @@ fn root_redirect() -> BoxedFilter<(impl Reply,)> {
             ))
         })
         .boxed()
-}    
-// fn create_response(status: u16, content_type: &str, body: &str) -> Result<Response<String>, warp::http::Error> {
-//     warp::http::Response::builder()
-//         .header("content-type", content_type.to_string())
-//         .status(status)
-//         .body(body.to_string())
-// }
-
-// fn create_redirect(status: u16, location: &str) -> Result<Response<String>, warp::http::Error> {
-//     let final_status : u16;
-
-//     match status {
-//         301 | 302 | 303 | 307 | 308 => final_status = status,
-//         _ => final_status = 302
-//     }
-
-//     warp::http::Response::builder()
-//         .header("Location", location)
-//         .status(final_status)
-//         .body("".to_string())
-// }
+}
