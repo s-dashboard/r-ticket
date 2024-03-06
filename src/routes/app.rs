@@ -11,6 +11,7 @@ pub async fn app() {
 
     let routes = root_redirect()
         .or(tickets_routes::get_tickets())
+        .or(tickets_routes::get_ticket())
         .or(warp::fs::dir(wwwroot));
         
     // Server the filter

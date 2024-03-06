@@ -11,7 +11,7 @@
         };
 
     watch(query, async (to) => {
-        await fetch('/api/tickets?state=' + (to || 'new')).then((success) => {
+        await fetch('/api/tickets/?state=' + (to || 'new')).then((success) => {
             success.json().then((data: any[]) => {
                 tickets.value = data; 
             })
