@@ -11,3 +11,14 @@ parking_lot = "0.12.1"
 serde = { version = "1.0.197", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["rt-multi-thread", "macros"] }
 chrono = { version = "0.4.34", features = ["serde"] }
+mysql = "*"
+mysql_common = "0.32.0"
+
+[dependencies.native-tls]
+version = "0.2.11"
+optional = true
+
+[features]
+default = [
+    "native-tls"   
+]
