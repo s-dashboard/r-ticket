@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::prelude::*;
 use mysql::{params, Value};
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -17,8 +17,8 @@ pub struct Ticket {
     pub content: Option<String>,
     pub state: Option<String>,
     pub state_title: Option<String>,
-    pub created: Option<NaiveDateTime>,
-    pub changed: Option<NaiveDateTime>
+    pub created: Option<DateTime<Utc>>,
+    pub changed: Option<DateTime<Utc>>
 }
 
 impl Ticket {
@@ -84,8 +84,8 @@ fn ticket_selector() -> impl Fn((Value, Value, Value, Value, Value, Value, Value
         content: mysql::from_value(content), 
         state: mysql::from_value(state),
         state_title: mysql::from_value(state_title),
-        created: NaiveDateTime::from_timestamp_opt(mysql::from_value::<i64>(created_nix),0),
-        changed: NaiveDateTime::from_timestamp_opt(mysql::from_value(changed_nix),0)
+        created: DateTime::from_timestamp(mysql::from_value::<i64>(created_nix),0),
+        changed: DateTime::from_timestamp(mysql::from_value(changed_nix),0)
     };
     return selector;
 }
