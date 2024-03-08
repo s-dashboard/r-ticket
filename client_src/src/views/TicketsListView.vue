@@ -20,22 +20,24 @@
 
 </script>
 <template>
-    <table class="table table-striped">
-        <thead>
-            <th>#</th>
-            <th>Subject</th>
-            <th>Received</th>
-        </thead>
-        <tbody>
-            <tr v-for="ticket in tickets">
-                <td>{{ ticket.id }}</td>
-                <td>
-                    <RouterLink :to="{ path: '/tickets/' + ticket.id}" replace>
-                    {{ ticket.subject }}
-                    </RouterLink>
-                </td>
-                <td>{{ dateTime(ticket.created) }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="col-2">
+        <table class="table table-striped">
+            <thead>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Received</th>
+            </thead>
+            <tbody>
+                <tr v-for="ticket in tickets">
+                    <td>{{ ticket.id }}</td>
+                    <td>
+                        <RouterLink :to="{ path: '/tickets/' + ticket.id}" replace>
+                        {{ ticket.subject }}
+                        </RouterLink>
+                    </td>
+                    <td>{{ dateTime(ticket.created) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </template>

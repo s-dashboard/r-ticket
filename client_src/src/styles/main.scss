@@ -1,9 +1,15 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap";
+@import "./fontawesome/scss/fontawesome.scss";
+@import "./fontawesome/scss/solid.scss";
 
 body {
     background-color: $default-background;
     color: $default-foreground;
     font-family: $default-font-family;
-    font-size: $default-font-size; 
+    font-size: $default-font-size;
+}
+
+.flex-1 {
+    flex: 1;
 }

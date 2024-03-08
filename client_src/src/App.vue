@@ -1,26 +1,25 @@
 <script setup lang="ts">
-  import { RouterView } from 'vue-router'
-  import Topbar from './components/Topbar.vue'
-  import Sidemenu from './components/Sidemenu.vue'
-  import Breadcrumb from './components/Breadcrumb.vue'
+  import Topbar from '@/components/Topbar.vue';
+  import MainView from '@/views/MainView.vue';
 </script>
-
 <template>
-  <div class="container-fluid">
-    <Topbar />
-    <div class="row">
-      <div class="side-menu col">
-        <Sidemenu />
-      </div>
-      <div class="col">
-        <Breadcrumb />
-        <RouterView />
-      </div>
+    <div class="wrapper">
+      <Topbar />
+      <MainView />
     </div>
-  </div>
 </template>
 <style lang="scss">
-  .side-menu {
-    max-width: 250px;
+  .wrapper {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      margin: -12px -12px 0px -12px;
+      padding: 12px 12px 0px 12px
+  }
+
+  #app {
+    height: 100vh;
   }
 </style>
