@@ -24,7 +24,7 @@
             <div class="col flex">
                 {{ tickets?.content }}
             </div>
-            <div class="col">PROPERTIES</div>
+            <div class="col" style="max-width: 250px;">PROPERTIES</div>
         </div>
     </div>
 </template>
