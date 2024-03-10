@@ -21,7 +21,12 @@
 </script>
 <template>
     <div class="col-2 w-100">
-        <div class="row" v-for="ticket in tickets">
+        <div class="row row-gridtable row-gridtable-header">
+            <div class="col" style="max-width: 32px;"></div>
+            <div class="col">Subject</div>
+            <div class="col" style="max-width: 130px;">Created</div>
+        </div>
+        <div class="row row-gridtable" v-for="ticket in tickets">
             <div class="col" style="max-width: 32px;">
                 #{{ ticket.id }}
             </div>

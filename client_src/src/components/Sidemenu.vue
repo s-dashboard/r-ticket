@@ -1,15 +1,18 @@
 <script lang="ts" setup>
     import { useRoute, useRouter } from 'vue-router';
     const router = useRouter(), 
-        activeRoute = useRoute();
-    
-    const routes = router.options.routes.filter(p => p.meta?.sideMenu);
+        activeRoute = useRoute(),
+        isMatch = (path: string) => {
+            return false;
+        }, 
+
+        routes = router.options.routes.filter(p => p.meta?.sideMenu);
 </script> 
 <template>
     <nav id="sidebar">
         <div class="sidebar-header"></div>
         <ul class="list-unstyled components">
-            <li class="list-nav-item" v-for="route in routes">
+            <li class="list-nav-item" :class="{ 'active': isMatch(route.path)}" v-for="route in routes">
                 <a class="nav-link" v-bind:href="route.path" data-toggle="collapse" aria-expanded="false" :title="route.meta?.title">
                     <i :class="'fas ' + route.meta?.iconCls"></i>
                 </a>
@@ -18,29 +21,33 @@
     </nav>
 </template>
 <style lang="scss">
+    $sidebar-width: 54px;
 
     .list-nav-item {
         text-align: center;
-        padding: 5px;
-    }
+        font-size: 28px;
+        padding: 8px;
+        width: 53px;
+        height: 53px;
+        border-bottom: 1px solid #47748b;
 
-    .nav {
-        &-level-1 {
-            margin-left: 15px;
-            font-size: 0.8em;
+        &:hover, &.active {
+            color: #7386D5;
+            background: #fff;
         }
     }
 
     #sidebar {
-        min-width: 80px;
-        max-width: 80px;
+        min-width: $sidebar-width;
+        max-width: $sidebar-width;
         background: #7386D5;
         color: #fff;
         transition: all 0.3s;
+        padding: 0;
     }
 
     #sidebar.active {
-        margin-left: -80px;
+        margin-left: -$sidebar-width;
     }
 
     #sidebar .sidebar-header {
@@ -49,39 +56,17 @@
     }
 
     #sidebar ul.components {
-        padding: 20px 0;
-        border-bottom: 1px solid #47748b;
+        padding: 0;
     }
 
     #sidebar ul p {
         color: #fff;
         padding: 10px;
     }
-
-    #sidebar ul li a {
-    }
-
-    #sidebar ul li a:hover {
-        // color: #7386D5;
-        // background: #fff;
-    }
-
-    // #sidebar ul li.active>a,
-    // a[aria-expanded="true"] {
-    //     color: #fff;
-    //     background: #6d7fcc;
-    // }
-
-    // ul ul a {
-    //     font-size: 0.9em !important;
-    //     padding-left: 30px !important;
-    //     background: #6d7fcc;
-    // }
-
     
     @media (max-width: 768px) {
         #sidebar {
-            margin-left: -250px;
+            margin-left: -$sidebar-width;
         }
         #sidebar.active {
             margin-left: 0;

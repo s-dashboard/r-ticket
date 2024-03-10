@@ -7,8 +7,8 @@
     <div class="d-flex container-fluid m-0 p-0 flex-1 align-items-stretch">
         <div class="row flex-1">
             <Sidemenu />
-            <div class="col">
-                <div class="m-2">
+            <div class="col mt-4">
+                <div>
                     <Breadcrumb />
                     <RouterView />
                 </div>

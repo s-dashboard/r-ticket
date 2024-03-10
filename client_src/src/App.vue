@@ -15,7 +15,6 @@
       height: 100%;
       flex-direction: column;
       align-items: stretch;
-      margin: -12px -12px 0px -12px;
       padding: 12px 12px 0px 12px
   }
 
