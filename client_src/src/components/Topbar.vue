@@ -44,14 +44,29 @@
                 <i class="fas fa-bars"></i>
                 <span class="title">Navbar</span>
             </button>
-            <form class="d-flex" v-on:submit="onSubmit">
+            <form class="d-flex search-form" v-on:submit="onSubmit">
                 <input class="form-control me-2 flex-1" type="text" placeholder="Search"
                     v-model="search">
+                <i class="fas fa-search"></i>
             </form>
         </div>
     </nav>
 </template>
 <style lang="scss">
+
+    .search-form {
+        .form-control {
+            padding-right: 35px;
+        }
+
+        i {
+            position: absolute;
+            right: 28px;
+            top: 15px;
+            font-size: 24px;
+        }
+    }
+
     .topbar {
         margin: -12px;
         padding-bottom: 12px;

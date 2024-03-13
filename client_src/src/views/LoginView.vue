@@ -32,6 +32,7 @@
 <template>
     <div class="container vertical-center">
         <div class="login-container">
+            <div class="login-container-image"></div>
             <form @submit.prevent="login">
                 <div class="form-group row">
                     <label for="email" class="col-sm-3 col-form-label">Email:</label>
@@ -45,9 +46,14 @@
                         <input type="password" id="password" v-model="password" required class="form-control">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-light">
-                    Login
-                </button>
+                <div class="row">
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-light">
+                            Login
+                        </button>
+                    </div>
+                    <div class="col-auto me-auto p-1">| <a href="">Forgot password?</a></div>
+                </div>
             </form>
             <div v-if="error" class="error">{{ error }}</div>
         </div>
@@ -59,9 +65,14 @@
         width: 400px;
         margin: 0 auto;
         padding: 20px;
-        border: $default-dark-border-size solid $default-dark-border-color;
-        border-radius: 5px;
-        background-color: $default-ligher-background;
+
+        &-image {
+            margin: 0 auto 2em auto; 
+            height: 200px;
+            width: 200px;
+            border-radius: 100px;
+            background-color: blue;
+        }
     }
     
     .form-group {

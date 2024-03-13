@@ -5,8 +5,33 @@
         isMatch = (path: string) => {
             return false;
         }, 
-
         routes = router.options.routes.filter(p => p.meta?.sideMenu);
+
+        const signOut = (e: any) => {
+            
+             // await ajax.post<LoginResponse>('/api/login', {
+            //     username: email.value, 
+            //     password: password.value
+            // }).then((data: LoginResponse) => {
+            //     if(data.success) {
+            //         localStorage.setItem('TICKETS_TOKEN', data.token); 
+            // router.push({
+            //     path: '/'
+            // });
+            
+            // location.reload();
+            //     } else {
+            //         error.value = 'Invalid email or password';    
+            //     }
+            // })
+
+            localStorage.removeItem('TICKETS_TOKEN');
+            router.push({
+                path: '/'
+            });
+            location.reload();
+            return false;
+        }; 
 </script> 
 <template>
     <nav id="sidebar">
@@ -15,6 +40,11 @@
             <li class="list-nav-item" :class="{ 'active': isMatch(route.path)}" v-for="route in routes">
                 <a class="nav-link" v-bind:href="route.path" data-toggle="collapse" aria-expanded="false" :title="route.meta?.title">
                     <i :class="'fas ' + route.meta?.iconCls"></i>
+                </a>
+            </li>
+            <li class="list-nav-item">
+                <a href="#" class="nav-link" @click="signOut($event)">
+                    <i class="fas fa-sign-out-alt"></i>
                 </a>
             </li>
         </ul>
