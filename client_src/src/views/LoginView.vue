@@ -2,49 +2,66 @@
     import { ref } from 'vue';
     import ajax from '@/ajax';
     import type { LoginResponse } from '@/types';
-
-    const email = ref(''), 
+    import { useRouter } from 'vue-router';
+    
+    const router  = useRouter(),    
+        email = ref(''), 
         password = ref(''), 
         error = ref(''), 
         login = async () => {
-            await ajax.post<LoginResponse>('/api/login', {
-                username: email.value, 
-                password: password.value
-            }).then((data: LoginResponse) => {
-                if(data.success) {
-                    localStorage.setItem('TICKETS_TOKEN', data.token); 
-                } else {
-                    error.value = 'Invalid email or password';    
-                }
+
+            // await ajax.post<LoginResponse>('/api/login', {
+            //     username: email.value, 
+            //     password: password.value
+            // }).then((data: LoginResponse) => {
+            //     if(data.success) {
+            //         localStorage.setItem('TICKETS_TOKEN', data.token); 
+            //     } else {
+            //         error.value = 'Invalid email or password';    
+            //     }
+            // });
+
+            localStorage.setItem('TICKETS_TOKEN', 'debugging'); 
+            router.push({
+                path: '/'
             });
+            location.reload();
         };
 </script>
 
 <template>
-    <div class="login-container">
-      <h2>Login</h2>
-      <form @submit.prevent="login">
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" id="email" v-model="email" required>
+    <div class="container vertical-center">
+        <div class="login-container">
+            <form @submit.prevent="login">
+                <div class="form-group row">
+                    <label for="email" class="col-sm-3 col-form-label">Email:</label>
+                    <div class="col-sm-9">
+                        <input type="email" id="email" v-model="email" required  class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="password" class="col-sm-3 col-form-label">Password:</label>
+                    <div class="col-sm-9">
+                        <input type="password" id="password" v-model="password" required class="form-control">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-light">
+                    Login
+                </button>
+            </form>
+            <div v-if="error" class="error">{{ error }}</div>
         </div>
-        <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" id="password" v-model="password" required>
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <div v-if="error" class="error">{{ error }}</div>
     </div>
-  </template>
+</template>
   
   <style scoped lang="scss">
     .login-container {
-        max-width: 400px;
+        width: 400px;
         margin: 0 auto;
         padding: 20px;
-        border: 1px solid #ccc;
+        border: $default-dark-border-size solid $default-dark-border-color;
         border-radius: 5px;
+        background-color: $default-ligher-background;
     }
     
     .form-group {
@@ -56,25 +73,19 @@
         margin-bottom: 5px;
     }
     
-    input[type="email"],
-    input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-    
-    button {
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    
     .error {
         color: red;
         margin-top: 10px;
     }
-  </style>
+
+    .vertical-center {
+        min-height: 100%;
+        /* Fallback for browsers do NOT support vh unit */
+        min-height: 100vh;
+        /* These two lines are counted as one :-)       */
+
+        display: flex;
+        align-items: center;
+    }
+  
+</style>

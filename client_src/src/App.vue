@@ -1,11 +1,16 @@
 <script setup lang="ts">
   import Topbar from '@/components/Topbar.vue';
   import MainView from '@/views/MainView.vue';
+  import { ref } from 'vue';
+import LoginView from './views/LoginView.vue';
+
+  const ticket = ref(localStorage.getItem('TICKETS_TOKEN'));
 </script>
 <template>
     <div class="wrapper">
-      <Topbar />
-      <MainView />
+      <Topbar v-if="ticket !== null" />
+      <MainView v-if="ticket !== null" />
+      <LoginView v-if="ticket === null" />
     </div>
 </template>
 <style lang="scss">
