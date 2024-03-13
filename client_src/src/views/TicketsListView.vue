@@ -2,6 +2,7 @@
     import { computed, ref, watch } from 'vue';
     import { useRoute } from 'vue-router';
     import moment from 'moment';
+    import ajax from '@/ajax';
 
     const route = useRoute(),
         tickets = ref<any[]>([]),
@@ -11,11 +12,11 @@
         };
 
     watch(query, async (to) => {
-        await fetch('/api/tickets/?state=' + (to || 'new')).then((success) => {
-            success.json().then((data: any[]) => {
-                tickets.value = data; 
-            })
-        });
+        await ajax.get<any[]>('/api/tickets/', {
+            state: (to || 'new')
+        }).then((data: any[]) => {
+            tickets.value = data; 
+        })
     }, {immediate: true}); 
 
 </script>

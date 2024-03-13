@@ -5,3 +5,8 @@ export interface Ticket {
     created: string,
     changed: string
 }
+
+export interface LoginResponse {
+    token: string;
+    success: boolean
+}
