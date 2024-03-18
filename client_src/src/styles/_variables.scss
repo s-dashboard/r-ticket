@@ -1,4 +1,14 @@
-$default-background: #fff;
-$default-foreground: #313131;
+@use 'sass:color';
+
+$default-background: #1c1c1c;
+$default-ligher-background: color.scale($default-background, $lightness: 8%);
+$default-foreground: #c8c8c8;
+$default-link-color: #becbff;
+$default-dark-border-size: 2px;
+$default-dark-border-color: color.scale($default-background, $lightness: 24%);
+
 $default-font-size: 1em;
 $default-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+$row-gridtable-background-odd: #272b3b;
+$row-gridtable-background-even: #1e1e1e;

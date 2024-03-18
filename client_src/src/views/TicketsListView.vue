@@ -2,6 +2,7 @@
     import { computed, ref, watch } from 'vue';
     import { useRoute } from 'vue-router';
     import moment from 'moment';
+    import ajax from '@/ajax';
 
     const route = useRoute(),
         tickets = ref<any[]>([]),
@@ -11,31 +12,33 @@
         };
 
     watch(query, async (to) => {
-        await fetch('/api/tickets/?state=' + (to || 'new')).then((success) => {
-            success.json().then((data: any[]) => {
-                tickets.value = data; 
-            })
-        });
+        await ajax.get<any[]>('/api/tickets/', {
+            state: (to || 'new')
+        }).then((data: any[]) => {
+            tickets.value = data; 
+        })
     }, {immediate: true}); 
 
 </script>
 <template>
-    <table class="table table-striped">
-        <thead>
-            <th>#</th>
-            <th>Subject</th>
-            <th>Received</th>
-        </thead>
-        <tbody>
-            <tr v-for="ticket in tickets">
-                <td>{{ ticket.id }}</td>
-                <td>
-                    <RouterLink :to="{ path: '/tickets/' + ticket.id}" replace>
+    <div class="col-2 w-100">
+        <div class="row row-gridtable row-gridtable-header">
+            <div class="col" style="max-width: 32px;"></div>
+            <div class="col">Subject</div>
+            <div class="col" style="max-width: 130px;">Created</div>
+        </div>
+        <div class="row row-gridtable" v-for="ticket in tickets">
+            <div class="col" style="max-width: 32px;">
+                #{{ ticket.id }}
+            </div>
+            <div class="col">
+                <RouterLink :to="{ path: '/tickets/' + ticket.id}" replace>
                     {{ ticket.subject }}
-                    </RouterLink>
-                </td>
-                <td>{{ dateTime(ticket.created) }}</td>
-            </tr>
-        </tbody>
-    </table>
+                </RouterLink>
+            </div>
+            <div class="col" style="max-width: 130px;">
+                {{ dateTime(ticket.created) }}
+            </div>
+        </div>
+    </div>
 </template>

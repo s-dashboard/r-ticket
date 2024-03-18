@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::prelude::*;
 use mysql::{params, Value};
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -17,8 +17,8 @@ pub struct Ticket {
     pub content: Option<String>,
     pub state: Option<String>,
     pub state_title: Option<String>,
-    pub created: Option<NaiveDateTime>,
-    pub changed: Option<NaiveDateTime>
+    pub created: Option<DateTime<Utc>>,
+    pub changed: Option<DateTime<Utc>>
 }
 
 impl Ticket {
@@ -44,11 +44,21 @@ impl Store {
     }
 }
 
-fn get_state(mut _query: HashMap<String, String>) -> String  {
+fn get_state(mut _query: &HashMap<String, String>) -> String  {
     let mut state: &str = &"new";
     
     if _query.contains_key("state") {
-        state = _query.get_mut("state").unwrap();
+        state = _query.get("state").unwrap();
+    }
+
+    return state.to_string();
+}
+
+fn get_search(mut _query: &HashMap<String, String>) -> String  {
+    let mut state: &str = &"";
+    
+    if _query.contains_key("search") {
+        state = _query.get("search").unwrap();
     }
 
     return state.to_string();
@@ -56,8 +66,9 @@ fn get_state(mut _query: HashMap<String, String>) -> String  {
 
 pub async fn tickets_list(mut _query: HashMap<String, String>) -> Result<impl warp::Reply, warp::Rejection> {    
     let store: Store = super::tickets::Store::new();
-    let state: String = get_state(_query);
-    let result: Vec<Ticket> = select_tickets(state);
+    let state: String = get_state(&_query);
+    let search: String = get_search(&_query);
+    let result: Vec<Ticket> = select_tickets(state, search);
 
     result.iter().for_each(|item|{
         store.tickets_list.write().push(item.clone())        
@@ -84,15 +95,15 @@ fn ticket_selector() -> impl Fn((Value, Value, Value, Value, Value, Value, Value
         content: mysql::from_value(content), 
         state: mysql::from_value(state),
         state_title: mysql::from_value(state_title),
-        created: NaiveDateTime::from_timestamp_opt(mysql::from_value::<i64>(created_nix),0),
-        changed: NaiveDateTime::from_timestamp_opt(mysql::from_value(changed_nix),0)
+        created: DateTime::from_timestamp(mysql::from_value::<i64>(created_nix),0),
+        changed: DateTime::from_timestamp(mysql::from_value(changed_nix),0)
     };
     return selector;
 }
 
-fn select_tickets(state: String) -> Vec<Ticket> {
+fn select_tickets(state: String, search: String) -> Vec<Ticket> {
 
-    let query: &str = "SELECT 
+    let mut query: String = "SELECT 
         t.id
         , subject
         , ticket as content
@@ -100,9 +111,26 @@ fn select_tickets(state: String) -> Vec<Ticket> {
         , s.title AS state_title 
         , UNIX_TIMESTAMP(created) as created_nix
         , UNIX_TIMESTAMP(changed) as changed_nix
-    FROM tickets t JOIN states s ON s.id = t.state WHERE t.state = :state;";
+    FROM tickets t JOIN states s ON s.id = t.state WHERE t.state = :state;".to_owned();
 
-    let result: Vec<Ticket> = sql::select(query.to_string(), params! {"state" => &state },
+    let mut params: Vec<(String, Value)> = Vec::new();
+    params.push(("state".to_string(), Value::from(&state)));
+
+    if !search.is_empty() {
+        let search_words: Vec<&str> = search.split(" ")
+            .collect();
+
+        let mut i: i32 = 0;
+        for word in search_words {
+            let word_p = format!("word_{0}", i);
+            let word_sql = format!(" AND (subject LIKE '%' + {0} +'%')", word_p);
+            query.push_str(&word_sql);
+            params.push((word_p, Value::from(word.to_string())));
+            i = i + 1;
+        }
+    }
+
+    let result: Vec<Ticket> = sql::select(query.to_string(), params,
         ticket_selector()
     ).unwrap();
 

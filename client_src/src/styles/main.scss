@@ -1,9 +1,40 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "bootstrap";
+@import "./fontawesome/scss/fontawesome.scss";
+@import "./fontawesome/scss/solid.scss";
+
+// Free fontawesome v5
+// https://fontawesome.com/v5/search?q=logout&o=r&m=free
 
 body {
     background-color: $default-background;
     color: $default-foreground;
     font-family: $default-font-family;
-    font-size: $default-font-size; 
+    font-size: $default-font-size;
+}
+
+a {
+    color: $default-link-color;
+    text-decoration: none;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.row-gridtable {
+    color: $default-foreground;
+    background-color: $row-gridtable-background-even;
+    padding: 0.8em;
+
+    &-header {
+        border-bottom: $default-dark-border-size solid $default-dark-border-color;
+        font-weight: 600;
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+    }
+
+    &:nth-child(even) {
+        background-color: $row-gridtable-background-odd;
+    }
 }
