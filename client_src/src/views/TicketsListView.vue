@@ -21,7 +21,7 @@
 
 </script>
 <template>
-    <div class="col-2 w-100">
+    <div class="col-2 w-100 p-2">
         <div class="row row-gridtable row-gridtable-header">
             <div class="col" style="max-width: 32px;"></div>
             <div class="col">Subject</div>

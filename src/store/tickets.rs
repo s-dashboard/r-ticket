@@ -1,18 +1,18 @@
 use chrono::prelude::*;
 use mysql::{params, Value};
-use parking_lot::RwLock;
-use std::sync::Arc;
 use std::vec::Vec;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
 use crate::db::sql;
+use super::store::Store;
 
 pub type Tickets = Vec<Ticket>;
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct Ticket {
     pub id: i32,
+    pub client_id: i32,
     pub subject: Option<String>,
     pub content: Option<String>,
     pub state: Option<String>,
@@ -21,28 +21,7 @@ pub struct Ticket {
     pub changed: Option<DateTime<Utc>>
 }
 
-impl Ticket {
-    // pub fn new(id: i32, subject: Option<String>, state: Option<String>) -> Self {
-    //     Ticket {
-    //         id: id, 
-    //         subject: subject,
-    //         state: state
-    //     }
-    // }
-}
-
-#[derive(Clone)]
-pub struct Store {
-    tickets_list: Arc<RwLock<Tickets>>
-}
-
-impl Store {
-    pub fn new() -> Self {
-        Store {
-            tickets_list: Arc::new(RwLock::new(Vec::new())),
-        }
-    }
-}
+impl Ticket {}
 
 fn get_state(mut _query: &HashMap<String, String>) -> String  {
     let mut state: &str = &"new";
@@ -86,11 +65,12 @@ pub async fn ticket_single(id: i32) -> Result<impl warp::Reply, warp::Rejection>
     Ok(warp::reply::json(&ticket))
 }
 
-fn ticket_selector() -> impl Fn((Value, Value, Value, Value, Value, Value, Value)) -> Ticket
+fn ticket_selector() -> impl Fn((Value, Value, Value, Value, Value, Value, Value, Value)) -> Ticket
 {
-    let selector = |(id, subject, content, state, state_title, created_nix, changed_nix)|
+    let selector = |(id, client_id, subject, content, state, state_title, created_nix, changed_nix)|
     Ticket {
         id: mysql::from_value(id), 
+        client_id: mysql::from_value(client_id), 
         subject: mysql::from_value(subject), 
         content: mysql::from_value(content), 
         state: mysql::from_value(state),
@@ -105,13 +85,17 @@ fn select_tickets(state: String, search: String) -> Vec<Ticket> {
 
     let mut query: String = "SELECT 
         t.id
+        , client_id
         , subject
         , ticket as content
         , state
         , s.title AS state_title 
         , UNIX_TIMESTAMP(created) as created_nix
         , UNIX_TIMESTAMP(changed) as changed_nix
-    FROM tickets t JOIN states s ON s.id = t.state WHERE t.state = :state;".to_owned();
+    FROM tickets t 
+        JOIN states s ON s.id = t.state 
+        JOIN clients c ON c.id = t.client_id 
+    WHERE t.state = :state;".to_owned();
 
     let mut params: Vec<(String, Value)> = Vec::new();
     params.push(("state".to_string(), Value::from(&state)));
@@ -141,13 +125,17 @@ fn select_ticket(id: i32) -> Option<Ticket> {
 
     let query: &str = "SELECT 
         t.id
+        , client_id
         , subject
         , ticket as content
         , state
         , s.title AS state_title 
         , UNIX_TIMESTAMP(created) as created_nix
         , UNIX_TIMESTAMP(changed) as changed_nix
-    FROM tickets t JOIN states s ON s.id = t.state WHERE t.id = :id;";
+    FROM tickets t 
+        JOIN states s ON s.id = t.state 
+        JOIN clients c ON c.id = t.client_id 
+    WHERE t.id = :id;";
 
     let result: Vec<Ticket> = sql::select(query.to_string(), params! {"id" => &id },
         ticket_selector()

@@ -2,6 +2,8 @@ use std::str::FromStr;
 use warp::{filters::{path::FullPath, BoxedFilter}, redirect, reply::Reply, Filter, http::Uri};
 use crate::routes::tickets_routes;
 
+use super::clients_routes;
+
 pub async fn app() {
 
     let current_dir = std::env::current_dir()
@@ -12,6 +14,7 @@ pub async fn app() {
     let routes = root_redirect()
         .or(tickets_routes::get_tickets())
         .or(tickets_routes::get_ticket())
+        .or(clients_routes::get_client())
         .or(warp::fs::dir(wwwroot));
         
     // Server the filter

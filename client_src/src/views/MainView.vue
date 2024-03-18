@@ -16,8 +16,3 @@
         </div>
     </div>
 </template>
-<style lang="scss">
-  .side-menu {
-    max-width: 250px;
-  }
-</style>

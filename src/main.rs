@@ -1,5 +1,5 @@
+mod store;
 mod routes;
-mod tickets_store;
 mod db;
 use crate::routes::app;
 
