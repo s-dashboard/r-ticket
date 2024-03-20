@@ -2,6 +2,7 @@ mod store;
 mod routes;
 mod db;
 mod security;
+mod config;
 use crate::routes::app;
 
 #[tokio::main]

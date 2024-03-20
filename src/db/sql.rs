@@ -1,11 +1,13 @@
 use mysql::{prelude::{ FromRow, Queryable}, *};
-use dotenv::dotenv;
-use std::env;
+
+use crate::config::globals::with_settings;
 
 pub fn get_conn() -> Result<PooledConn> {
-    dotenv().ok();
+
+    let settings = with_settings()
+        .expect("settings are invalid");
     
-    let connection_string = env::var("CONNECTION_STRING").expect("CONNECTION_STRING must be set");   
+    let connection_string = settings.connection_string;
     let connection_opts = mysql::Opts::from_url(&connection_string)
         .unwrap();
 

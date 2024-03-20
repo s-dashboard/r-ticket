@@ -2,48 +2,49 @@ use chrono::{DateTime, Utc};
 use rand::{distributions::Alphanumeric, Rng};
 use mysql::{params, Value};
 use serde::{Deserialize, Serialize};
-use warp::{filters::header, reject::Rejection, reply::{self, Reply, Response, WithStatus}, Filter};
+use warp::{reject::{self, Rejection}, Filter};
 use crate::db::sql;
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct UserContext {
-    pub user_id: i32
+    pub user_id: i32,
+    pub username: String
 }
 
-fn verify_token(token: String) -> Result<i32, i32> {
+#[derive(Debug, Copy, Clone)]
+pub struct Unauthorized;
+impl reject::Reject for Unauthorized {}
 
-    let select_sql = String::from("SELECT user_id, token_value, UNIX_TIMESTAMP(valid_to) as valid_to_nix FROM tokens WHERE token_value = :token_value;");
-    let created_tokens = sql::select(select_sql, params! {"token_value" => &token },
-        token_selector()
+fn verify_token(token: String) -> Result<VerifiedToken, Rejection> {
+
+    let mut fixed_token = token.replace("bearer ", "");
+    fixed_token = fixed_token.replace("Bearer ", "");
+
+    let select_sql = String::from("SELECT user_id, username FROM tokens INNER JOIN users ON users.id = tokens.user_id WHERE token_value = :token_value;");
+    let created_tokens = sql::select(select_sql, params! {"token_value" => &fixed_token },
+        verified_token_selector()
     ).unwrap();
 
     if created_tokens.is_empty() {
-        return Err(0);
+        Err(reject::custom(Unauthorized))
+    } else {
+        let created: VerifiedToken = created_tokens.into_iter().nth(0).unwrap();
+        Ok(created)    
     }
-
-    let created: Token = created_tokens.into_iter().nth(0).unwrap();
-    let user_id = created.user_id.unwrap(); 
-    
-    return Ok(user_id)
 }
 
-pub async fn api_token_filter() -> impl Filter<Extract = (WithStatus<impl Reply>,), Error = Rejection> {
-    warp::header::header("Authorization")
-        .and_then(authorize_token)
-        .boxed()
-}
-
-async fn authorize_token(token: String) ->  Result<WithStatus<impl Reply>, Rejection> {
-    let token_id = match verify_token(token) {
-        Ok(t) => t, 
-        Err(_) => 0
-    };
-
-    if token_id == 0 {
-        return Ok(warp::reply::with_status(warp::reply(), warp::http::StatusCode::UNAUTHORIZED))
-    }
-
-    return Ok(warp::reply::with_status(warp::reply(), warp::http::StatusCode::OK))
+pub fn with_authentication() ->  impl Filter<Extract = (UserContext,), Error = Rejection> + Copy {
+    warp::header::<String>("Authorization").and_then(move |token: String| async move {
+        match verify_token(token) {
+            Ok(t) => {
+                Ok(UserContext {
+                    user_id: t.user_id.unwrap(),
+                    username: t.username.unwrap()
+                })
+            },
+            Err(_) => Err(reject::custom(Unauthorized))
+        }
+    })
 }
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
@@ -51,6 +52,12 @@ pub struct Token {
     pub token_value: String, 
     pub user_id: Option<i32>,
     pub valid_to: Option<DateTime<Utc>>
+}
+
+#[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
+pub struct VerifiedToken {
+    pub user_id: Option<i32>,
+    pub username: Option<String>
 }
 
 fn token_value() -> String {
@@ -110,6 +117,15 @@ fn token_selector() -> impl Fn((Value, Value, Value)) -> Token  {
         user_id: mysql::from_value(user_id), 
         token_value: mysql::from_value(token_value), 
         valid_to: DateTime::from_timestamp(mysql::from_value(valid_to_nix),0),
+    };
+    return selector;
+}
+
+fn verified_token_selector() -> impl Fn((Value, Value)) -> VerifiedToken  {
+    let selector = |(user_id, username)|
+    VerifiedToken {
+        user_id: mysql::from_value(user_id),
+        username: mysql::from_value(username),
     };
     return selector;
 }

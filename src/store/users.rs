@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use mysql::{params, Value};
-use crate::{db::sql, routes::authentication::{self}, security::hasher};
+use crate::{db::sql, routes::authentication::{self, UserContext}, security::hasher};
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct User {
@@ -15,7 +15,7 @@ impl User {}
 
 pub type Users = Vec<User>;
 
-pub async fn user_single(id: i32) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn user_single(id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
     let result = select_user(id);
     let user = result.unwrap();
     Ok(warp::reply::json(&user))

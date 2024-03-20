@@ -43,7 +43,7 @@ fn get_search(mut _query: &HashMap<String, String>) -> String  {
     return state.to_string();
 }
 
-pub async fn tickets_list(mut _query: HashMap<String, String>) -> Result<impl warp::Reply, warp::Rejection> {    
+pub async fn tickets_list(mut _query: HashMap<String, String>, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {    
     let store: Store = super::tickets::Store::new();
     let state: String = get_state(&_query);
     let search: String = get_search(&_query);
@@ -54,12 +54,10 @@ pub async fn tickets_list(mut _query: HashMap<String, String>) -> Result<impl wa
     });
 
     let store_result = store.tickets_list.read();
-    
     Ok(warp::reply::json(&*store_result))
-
 }
 
-pub async fn ticket_single(id: i32) -> Result<impl warp::Reply, warp::Rejection> {    
+pub async fn ticket_single(id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {    
     let result = select_ticket(id);
     let ticket = result.unwrap();
     Ok(warp::reply::json(&ticket))

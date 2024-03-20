@@ -24,7 +24,7 @@ fn client_selector() -> impl Fn((Value, Value, Value)) -> Client
     return selector;
 }
 
-pub async fn client_single(id: i32) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn client_single(id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
     let result = select_client(id);
     let ticket = result.unwrap();
     Ok(warp::reply::json(&ticket))
