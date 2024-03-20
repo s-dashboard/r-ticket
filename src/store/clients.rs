@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use mysql::{params, Value};
-use crate::db::sql;
+use crate::{db::sql, routes::authentication::UserContext};
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct Client {

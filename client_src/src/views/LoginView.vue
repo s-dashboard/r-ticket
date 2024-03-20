@@ -5,27 +5,25 @@
     import { useRouter } from 'vue-router';
     
     const router  = useRouter(),    
-        email = ref(''), 
+        username = ref(''), 
         password = ref(''), 
         error = ref(''), 
         login = async () => {
 
-            // await ajax.post<LoginResponse>('/api/login', {
-            //     username: email.value, 
-            //     password: password.value
-            // }).then((data: LoginResponse) => {
-            //     if(data.success) {
-            //         localStorage.setItem('TICKETS_TOKEN', data.token); 
-            //     } else {
-            //         error.value = 'Invalid email or password';    
-            //     }
-            // });
+            await ajax.post<LoginResponse>('/api/auth/', {
+                username: username.value, 
+                password: password.value
+            }).then((data: LoginResponse) => {
 
-            localStorage.setItem('TICKETS_TOKEN', 'debugging'); 
-            router.push({
-                path: '/'
+                localStorage.setItem('TICKETS_TOKEN', data.token_value); 
+                router.push({
+                    path: '/'
+                });
+
+                location.reload();
+            }).catch(() => {
+                error.value = 'Invalid email or password';                    
             });
-            location.reload();
         };
 </script>
 
@@ -35,9 +33,9 @@
             <div class="login-container-image"></div>
             <form @submit.prevent="login">
                 <div class="form-group row">
-                    <label for="email" class="col-sm-3 col-form-label">Email:</label>
+                    <label for="username" class="col-sm-3 col-form-label">Email/Username:</label>
                     <div class="col-sm-9">
-                        <input type="email" id="email" v-model="email" required  class="form-control">
+                        <input id="username" v-model="username" required  class="form-control">
                     </div>
                 </div>
                 <div class="form-group row">

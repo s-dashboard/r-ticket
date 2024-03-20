@@ -22,6 +22,7 @@ export interface PropertyInfo {
 }
 
 export interface LoginResponse {
-    token: string;
-    success: boolean
+    token_value: string;
+    user_id: number;
+    valid_to: string
 }

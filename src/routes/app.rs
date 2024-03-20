@@ -4,18 +4,23 @@ use crate::routes::tickets_routes;
 use crate::routes::users_routes;
 use crate::routes::clients_routes;
 
+// use super::authentication;
+
 pub async fn app() {
 
     let current_dir = std::env::current_dir()
         .expect("failed to read current directory");
 
     let wwwroot = current_dir.as_path().join("wwwroot").to_path_buf();
+    
+    // let filter = authentication::api_token_filter();
 
     let routes = root_redirect()
         .or(tickets_routes::get_tickets())
         .or(tickets_routes::get_ticket())
         .or(clients_routes::get_client())
         .or(users_routes::get_user())
+        .or(users_routes::post_user_auth())
         .or(warp::fs::dir(wwwroot));
         
     // Server the filter

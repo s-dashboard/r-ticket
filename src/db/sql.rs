@@ -28,3 +28,13 @@ pub fn select<T,P,F,U>(query: String, params: P, mut f: F) -> std::result::Resul
 
     Ok(result)
 }
+
+pub fn execute<P, I>(query: String, params: I) -> Result<()> where
+    P: Into<Params>,
+    I: IntoIterator<Item = P>
+{
+    let mut conn: PooledConn = get_conn().unwrap();
+    let stmt: Statement = conn.prep(query)?;
+
+    conn.exec_batch(stmt, params)
+}

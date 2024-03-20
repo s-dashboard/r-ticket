@@ -4,7 +4,7 @@ use std::vec::Vec;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
-use crate::db::sql;
+use crate::{db::sql, routes::authentication::UserContext};
 use super::store::Store;
 
 pub type Tickets = Vec<Ticket>;
