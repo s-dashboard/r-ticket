@@ -4,7 +4,7 @@ use std::vec::Vec;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
-use crate::{db::sql, routes::authentication::UserContext};
+use crate::{db::sql, routes::authentication::UserContext, viewmodels::models};
 use super::store::Store;
 
 pub type Tickets = Vec<Ticket>;
@@ -141,4 +141,47 @@ fn select_ticket(id: i32) -> Option<Ticket> {
 
     let first = result.into_iter().nth(0);
     return first;
+}
+
+pub async fn save(ticket: models::TicketModel, id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = upsert_ticket(ticket, id);
+    Ok(warp::reply::json(&result))
+}
+
+fn upsert_ticket(ticket: models::TicketModel, id: i32) -> Option<Ticket> {
+    let existing_ticket: Option<Ticket> = select_ticket(id); 
+    let tickets: Vec<models::TicketModel> = vec![ticket];
+
+    if existing_ticket != None {
+        let update_sql = String::from("UPDATE tickets SET subject = :subject, content = :content, client_id = :client_id, state = :state, changed = Now() WHERE id = :id");
+        
+        let result = sql::execute(update_sql, tickets.iter().map(|p: &models::TicketModel| params! {
+            "subject" => p.subject.clone(), 
+            "content" => p.content.clone(),
+            "client_id" => p.client_id,
+            "state" => p.state.clone(),
+            "id" => p.id
+        })); 
+
+        if result.is_ok() {
+            return select_ticket(existing_ticket.unwrap().id);
+        } else {
+            None
+        }
+    } else {
+        let insert_sql = String::from("INSERT INTO tickets(subject, content, client_id, state, created, changed) VALUES(:subject, :content, :client_id, :state, Now(), Now())");
+        let result = sql::execute_with_id(insert_sql, tickets.iter().map(|p: &models::TicketModel| params! {
+            "subject" => p.subject.clone(), 
+            "content" => p.content.clone(),
+            "state" => p.state.clone(),
+            "client_id" => p.client_id
+        })); 
+
+        if result.is_ok() {
+            return select_ticket(result.unwrap()); 
+        } else{
+            return None; 
+        }
+
+    }
 }

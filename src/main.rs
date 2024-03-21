@@ -3,6 +3,8 @@ mod routes;
 mod db;
 mod security;
 mod config;
+mod viewmodels;
+
 use crate::routes::app;
 
 #[tokio::main]

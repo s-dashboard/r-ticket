@@ -31,6 +31,22 @@ pub fn select<T,P,F,U>(query: String, params: P, mut f: F) -> std::result::Resul
     Ok(result)
 }
 
+pub fn execute_with_id<P, I>(query: String, params: I) -> Result<i32,> where
+    P: Into<Params>,
+    I: IntoIterator<Item = P>
+{
+    let mut conn: PooledConn = get_conn().unwrap();
+    let stmt: Statement = conn.prep(query)?;
+
+    let mut tx = conn.start_transaction(TxOpts::default())?; 
+    let _ = tx.exec_batch(stmt, params);
+
+    let result: Option<i32> = tx.query_first("SELECT LAST_INSERT_ID();")?;
+    let _ = tx.commit();
+
+    return Ok(result.unwrap());
+}
+
 pub fn execute<P, I>(query: String, params: I) -> Result<()> where
     P: Into<Params>,
     I: IntoIterator<Item = P>
