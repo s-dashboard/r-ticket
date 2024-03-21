@@ -1,6 +1,6 @@
 use mysql::{prelude::{ FromRow, Queryable}, *};
 
-use crate::config::globals::with_settings;
+use crate::{config::globals::with_settings, routes::authentication::UserContext};
 
 pub fn get_conn() -> Result<PooledConn> {
 
@@ -55,4 +55,15 @@ pub fn execute<P, I>(query: String, params: I) -> Result<()> where
     let stmt: Statement = conn.prep(query)?;
 
     conn.exec_batch(stmt, params)
+}
+
+pub fn mark_as_deleted(table_name: String, primary_key: i32, context: UserContext) -> Result<(), Error> {
+
+    let update_sql = format!("UPDATE {table_name} SET deleted_by = :user_id, deleted = Now() WHERE id = :id");
+    let result = execute(update_sql, vec![primary_key].iter().map(|p: &i32| params! {
+        "id" => p, 
+        "user_id" => context.user_id
+    }));
+
+    result
 }

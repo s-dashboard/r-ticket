@@ -8,4 +8,3 @@ pub struct TicketModel {
     pub content: Option<String>,
     pub state: Option<String>
 }
-

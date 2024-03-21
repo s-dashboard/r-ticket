@@ -63,6 +63,21 @@ pub async fn ticket_single(id: i32, _context: UserContext) -> Result<impl warp::
     Ok(warp::reply::json(&ticket))
 }
 
+pub async fn delete(id: i32, context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = delete_ticket(id, context);
+    Ok(warp::reply::json(&result))
+}
+
+pub async fn update(ticket: models::TicketModel, id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = upsert_ticket(ticket, id);
+    Ok(warp::reply::json(&result))
+}
+
+pub async fn insert(ticket: models::TicketModel, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
+    let result = upsert_ticket(ticket, -1);
+    Ok(warp::reply::json(&result))
+}
+
 fn ticket_selector() -> impl Fn((Value, Value, Value, Value, Value, Value, Value, Value)) -> Ticket
 {
     let selector = |(id, client_id, subject, content, state, state_title, created_nix, changed_nix)|
@@ -93,7 +108,7 @@ fn select_tickets(state: String, search: String) -> Vec<Ticket> {
     FROM tickets t 
         JOIN states s ON s.id = t.state 
         JOIN clients c ON c.id = t.client_id 
-    WHERE t.state = :state;".to_owned();
+    WHERE t.state = :state AND t.deleted IS NULL;".to_owned();
 
     let mut params: Vec<(String, Value)> = Vec::new();
     params.push(("state".to_string(), Value::from(&state)));
@@ -133,7 +148,7 @@ fn select_ticket(id: i32) -> Option<Ticket> {
     FROM tickets t 
         JOIN states s ON s.id = t.state 
         JOIN clients c ON c.id = t.client_id 
-    WHERE t.id = :id;";
+    WHERE t.id = :id AND t.deleted IS NULL;";
 
     let result: Vec<Ticket> = sql::select(query.to_string(), params! {"id" => &id },
         ticket_selector()
@@ -143,16 +158,21 @@ fn select_ticket(id: i32) -> Option<Ticket> {
     return first;
 }
 
-pub async fn save(ticket: models::TicketModel, id: i32, _context: UserContext) -> Result<impl warp::Reply, warp::Rejection> {
-    let result = upsert_ticket(ticket, id);
-    Ok(warp::reply::json(&result))
+fn delete_ticket(id: i32, context: UserContext) -> Result<(),()> {
+    let existing_ticket: Option<Ticket> = select_ticket(id); 
+    if existing_ticket.is_some() {
+        let _ = sql::mark_as_deleted(String::from("tickets"), id, context);
+        Ok(())
+    } else {
+        Err(())
+    }
 }
 
 fn upsert_ticket(ticket: models::TicketModel, id: i32) -> Option<Ticket> {
     let existing_ticket: Option<Ticket> = select_ticket(id); 
     let tickets: Vec<models::TicketModel> = vec![ticket];
 
-    if existing_ticket != None {
+    if existing_ticket.is_some() {
         let update_sql = String::from("UPDATE tickets SET subject = :subject, content = :content, client_id = :client_id, state = :state, changed = Now() WHERE id = :id");
         
         let result = sql::execute(update_sql, tickets.iter().map(|p: &models::TicketModel| params! {

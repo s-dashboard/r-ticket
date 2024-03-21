@@ -1,41 +1,38 @@
-use crate::{store::tickets, viewmodels::models};
+use crate::{store::tickets, viewmodels::models::TicketModel};
 use warp::{Filter, Rejection, Reply};
 use std::collections::HashMap;
-use super::authentication;
+use super::{authentication, helpers};
 
 pub fn routes() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    put_ticket().or(get_tickets()).or(get_ticket())
-}
+    let tickets_path = warp::path("api")
+            .and(warp::path("tickets"));
 
-fn get_tickets() -> impl Filter<Extract = impl Reply, Error = Rejection> + Copy {
-    warp::get()
-        .and(warp::path("api"))
-        .and(warp::path("tickets"))
-        .and(warp::query::<HashMap<String, String>>())
-        .and(warp::path::end())
-        .and(authentication::with_authentication())
-        .and_then(tickets::tickets_list)
-}
-
-fn get_ticket() -> impl Filter<Extract = impl Reply, Error = Rejection> + Copy {
-    warp::get()
-        .and(warp::path("api"))
-        .and(warp::path!("tickets" / i32))
-        .and(warp::path::end())
+    tickets_path
+        .and(warp::get())
+        .and(warp::path::param())
         .and(authentication::with_authentication())
         .and_then(tickets::ticket_single)
-}
+        .or(tickets_path
+            .and(warp::get())
+            .and(warp::query::<HashMap<String, String>>())
+            .and(authentication::with_authentication())
+            .and_then(tickets::tickets_list))
+        .or(tickets_path
+            .and(warp::post())
+            .and(helpers::json_body::<TicketModel>())
+            .and(authentication::with_authentication())
+            .and_then(tickets::insert))
+        .or(tickets_path
+            .and(warp::put())
+            .and(helpers::json_body::<TicketModel>())
+            .and(warp::path::param())
+            .and(authentication::with_authentication())
+            .and_then(tickets::update))
+        .or(tickets_path
+            .and(warp::delete())
+            .and(warp::path::param())
+            .and(authentication::with_authentication())
+            .and_then(tickets::delete)
+        )
 
-fn put_ticket() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    warp::put()
-        .and(json_body())
-        .and(warp::path("api"))
-        .and(warp::path!("tickets" / i32))
-        .and(warp::path::end())
-        .and(authentication::with_authentication())
-        .and_then(tickets::save)
-}
-
-fn json_body() -> impl Filter<Extract = (models::TicketModel,), Error = warp::Rejection> + Clone{
-    warp::body::content_length_limit(1024 * 16).and(warp::body::json::<models::TicketModel>())
 }

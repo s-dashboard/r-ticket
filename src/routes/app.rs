@@ -23,6 +23,7 @@ pub async fn app() {
     let routes = root_redirect()
         .or(tickets_routes::routes())
         .or(clients_routes::routes())
+        .or(users_routes::post_user_auth())
         .or(users_routes::routes())
         .or(warp::fs::dir(wwwroot))
         .recover(handle_rejection);
