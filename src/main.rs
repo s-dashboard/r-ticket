@@ -1,7 +1,13 @@
-mod application;
-use application::app;
+mod store;
+mod routes;
+mod db;
+mod security;
+mod config;
+use crate::routes::app;
 
 #[tokio::main]
 async fn main() {
-    app::app().await; 
+    // let val = hasher::get_hashed("test01!".to_string()); 
+    // println!("Hashed: {val}");
+    app::app().await;
 }

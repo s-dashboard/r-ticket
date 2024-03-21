@@ -28,7 +28,7 @@ export default defineConfig({
         target: 'http://localhost:3030',
         changeOrigin: true,
         secure: false,
-        ws: true,
+        autoRewrite:true
       }
     }
   }

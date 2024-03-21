@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import DashboardView from '@/views/DashboardView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import LoginView from '@/views/LoginView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,6 +11,7 @@ const router = createRouter({
       meta: {
         sideMenu: true,
         title: 'Dashboard',
+        iconCls: 'fa-bolt',
         order: 1
       },
       component: DashboardView
@@ -19,38 +21,23 @@ const router = createRouter({
       meta: {
         sideMenu: true,
         title: 'Tickets',
+        iconCls: 'fa-inbox',
         order: 2
       },
       component: () => import('../views/TicketsView.vue'), 
       children: [{
         path: '',
-        name: 'tickets.list.new',
-        meta: {
-          title: 'New',
-        },
-        component: () => import('../views/TicketsListView.vue')
-      }, {
-        path: '/tickets?state=my',
-        name: 'tickets.list.my',
-        meta: {
-          title: 'My',
-          showMenu: true
-        },
-        component: () => import('../views/TicketsListView.vue')
-      }, {
-        path: '/tickets?state=closed',
-        name: 'tickets.list.closed',
-        meta: {
-          title: 'Closed',
-          showMenu: true
-        },
+        name: 'tickets.list',
         component: () => import('../views/TicketsListView.vue')
       }, {
         path: '/tickets/:id',
         name: 'tickets.detail',
         component: () => import('../views/TicketsDetailView.vue')
       }]
-    }, {
+    },{
+      path: '/login',
+      component: LoginView
+    },{
       path: '/:pathMatch(.*)*',
       component: NotFoundView
     }
