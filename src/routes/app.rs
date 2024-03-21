@@ -5,7 +5,7 @@ use crate::routes::tickets_routes;
 use crate::routes::users_routes;
 use crate::routes::clients_routes;
 
-use super::authentication::Unauthorized;
+use super::{authentication::Unauthorized, customproperties_routes};
 
 #[derive(Serialize)]
 struct ErrorMessage {
@@ -25,6 +25,7 @@ pub async fn app() {
         .or(clients_routes::routes())
         .or(users_routes::post_user_auth())
         .or(users_routes::routes())
+        .or(customproperties_routes::routes())
         .or(warp::fs::dir(wwwroot))
         .recover(handle_rejection);
         

@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
 use crate::{db::sql, routes::authentication::UserContext, viewmodels::models};
-use super::store::Store;
+use super::{helpers::get_search, store::Store};
 
 pub type Tickets = Vec<Ticket>;
 
@@ -28,16 +28,6 @@ fn get_state(mut _query: &HashMap<String, String>) -> String  {
     
     if _query.contains_key("state") {
         state = _query.get("state").unwrap();
-    }
-
-    return state.to_string();
-}
-
-fn get_search(mut _query: &HashMap<String, String>) -> String  {
-    let mut state: &str = &"";
-    
-    if _query.contains_key("search") {
-        state = _query.get("search").unwrap();
     }
 
     return state.to_string();
