@@ -24,7 +24,8 @@ import { useRouter } from 'vue-router';
     <div class="container-fluid ticket-header p-2">
         <div class="row">
             <div class="col ticket-header-title">
-                #{{ props.ticket?.id }} - {{ props.ticket?.subject }}
+                #{{ props.ticket?.id }} - 
+                <span class="clickable-field" data-name="subject">{{ props.ticket?.subject }}</span>
             </div>
             <div class="col-auto">
                 <span class="badge bg-secondary">{{ props.ticket?.state_title }}</span>

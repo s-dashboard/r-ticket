@@ -2,9 +2,10 @@
   import Topbar from '@/components/Topbar.vue';
   import MainView from '@/views/MainView.vue';
   import { ref } from 'vue';
-import LoginView from './views/LoginView.vue';
+  import LoginView from './views/LoginView.vue';
 
   const ticket = ref(localStorage.getItem('TICKETS_TOKEN'));
+
 </script>
 <template>
     <div class="wrapper">
