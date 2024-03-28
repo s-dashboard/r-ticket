@@ -8,57 +8,69 @@ type FieldValidator = {
 };
 
 
-const getInputElement = (el: Element): Element => {
+const getInputElement = (el: Element, options: any): Element => {
     const name: string = el.getAttribute('data-name') || '', 
-        elType: string = el.getAttribute('data-type')?.toLowerCase() || 'text'; 
-    
-    let inputEl: Element | null = null;
+        elType: string = el.getAttribute('data-type')?.toLowerCase() || 'text',
+        inputDefaultCssClass = options.inputDefaultCssClass || 'form-control',
+        errorCssClass = options.errorCssClass || 'error-message';
+
+    let els = document.getElementsByName(name); 
+    let inputEl: Element | null = els.length == 1 ? els[0] : null; 
+    const wasNull = inputEl === null; 
+
 
     switch(elType) {
-        case 'number': 
         case 'text': 
-            inputEl = document.createElement('input'); 
+            inputEl = inputEl === null ? document.createElement('input') : inputEl; 
+            inputEl.setAttribute('type', 'text'); 
+        break;
+        case 'number':  
+            inputEl = inputEl === null ? document.createElement('input') : inputEl;
+            inputEl.setAttribute('type', 'number'); 
         break;
         case 'textarea':
-            inputEl = document.createElement('textarea');
+            inputEl = inputEl === null ? document.createElement('textarea') : inputEl; 
         break;
         default: 
             throw Error('Unsupported type ' + elType);
     }
 
     inputEl.setAttribute('name', name);
-    
+    inputEl.classList.add(inputDefaultCssClass);
+    inputEl.classList.add('hide-field');
+
+    if(wasNull) {
+        el.appendChild(inputEl);
+    }
+
     return inputEl;
 }
 
 
 const initClickable = (options: any) => {
-    const cssClass = options.cssClass || 'clickable-field', 
-    inputDefaultCssClass = options.inputDefaultCssClass || 'form-control',
-    errorCssClass = options.errorCssClass || 'error-message';
+    const cssClass = options.cssClass || 'clickable-field';
 
     return (form: any, sourceValues: any, onSave: OnSaveAction, validators?: FieldValidator) => {
 
         const fields: Element[] = Array.from(document.getElementsByClassName(cssClass));
 
         fields.forEach((item: Element) => {
+
             const clickableField = (e: any) => {
-                const input = document.createElement('input'),
-                    element = e.target;
+                const element = e.target, 
+                    input = <any>getInputElement(element, options), 
+                    dataName = input.name;
 
                 if (element.classList.contains(cssClass)) {
-                    input.name = element.getAttribute('data-name') || '';
-                    const validator = validators ? validators[input.name] : null;
-                    input.value = sourceValues !== null ? sourceValues[input.name] : '';
-                    input.type = 'text';
-                    input.classList.add(inputDefaultCssClass);
+                    input.setAttribute('name', dataName);
+                    const validator = validators ? validators[dataName] : null;
+                    input.value = sourceValues !== null ? sourceValues[dataName] : '';
 
                     input.addEventListener('blur', () => {
                         if(!validator || validator && validator(input.value)) {
                             onSave(form);
                             sourceValues[input.name] = input.value;
                             item.innerHTML = input.value;
-                            item.addEventListener('click', clickableField, { once: true });
                         }
                     })
 
@@ -67,7 +79,6 @@ const initClickable = (options: any) => {
                         element.removeChild(firstNode);
                     }
 
-                    element.appendChild(input);
                     input.focus();
                 }
             };

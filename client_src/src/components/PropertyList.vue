@@ -27,13 +27,18 @@ import type { PropertyInfo } from '@/types';
             });
         }
     }, {immediate: true}); 
+
+    const emit = defineEmits(['save']), 
+        onChangeField = (e: any) => {
+            emit('save', e.srcElement.form);
+        }; 
 </script>
 <template>
     <p>PROPERTIES COMES HERE</p>
     <div v-for="prop in properties" class="form-group">
         <label :for="'property-field_' + prop.id">{{ prop.label }}</label>
         <template v-if="prop.data_type === 'int'">
-            <input :name="'property_' + prop.id" type="number" :id="'property-field_' + prop.id" class="form-control" :value="prop.value" />
+            <input :name="'property_' + prop.id" type="number" :id="'property-field_' + prop.id" class="form-control" :value="prop.value"  @change="onChangeField" />
         </template>
     </div>
 </template>

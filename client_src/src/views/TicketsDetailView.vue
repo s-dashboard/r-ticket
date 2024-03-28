@@ -27,7 +27,11 @@
     const onSave = (source: any) => {
         const formData = new FormData(source), 
             formObj = Object.fromEntries(formData);
-        
+
+        console.log(formObj);
+            
+        // ajax.put<Ticket>(`/api/tickets/${ticket_id}`, formObj).then(
+        // );
     }, onSumbitForm = (e: any | SubmitEvent) => {
         onSave(e.target);
     }
@@ -61,7 +65,7 @@
                     <PropertyList :owner="{
                         ownerType: 'tickets',
                         id: ticket?.id
-                    }" />
+                    }" @save="onSave" />
                 </div>
             </div>
         </div>
