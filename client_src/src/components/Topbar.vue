@@ -2,48 +2,46 @@
 <script lang="ts" setup>
     import { ref } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
+    import Topmenu from '@/components/Topmenu.vue'
 
-    const toggleBar = ($even: any) => { 
-        const els = document.querySelectorAll('#sidebar');
-        els[0].classList.toggle('active');
-    }, route = useRoute(),
-    router = useRouter(),
-    search = ref(''),
-    paramsToObject = (entries: any) => {
-        const result: any = {}
-        for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
-            result[key] = value;
-        }
-        return result;
-    },
-    onSubmit = (e: any) => {
+    const route = useRoute(),
+        router = useRouter(),
+        search = ref(''),
+        paramsToObject = (entries: any) => {
+            const result: any = {}
+            for(const [key, value] of entries) { // each 'entry' is a [key, value] tupple
+                result[key] = value;
+            }
+            return result;
+        },
+        onSubmit = (e: any) => {
 
-        const url: any = new URL(<any>window.location), 
-            hasSearch = url.searchParams.has('search'); 
-        
-        if(search.value === '' && hasSearch) {
-            url.searchParams.delete('search');
-        } else {
-            url.searchParams.set('search', search.value);
-        }
-        
-        const params = paramsToObject(url.searchParams);
-        router.push({ 
-            path: route.fullPath, 
-            query: params
-        });
+            const url: any = new URL(<any>window.location), 
+                hasSearch = url.searchParams.has('search'); 
+            
+            if(search.value === '' && hasSearch) {
+                url.searchParams.delete('search');
+            } else {
+                url.searchParams.set('search', search.value);
+            }
+            
+            const params = paramsToObject(url.searchParams);
+            router.push({ 
+                path: route.fullPath, 
+                query: params
+            });
 
-        e.preventDefault();
-        return false;
-    };
+            e.preventDefault();
+            return false;
+        };
 </script>
 <template>
     <nav class="topbar navbar navbar-light bg-dark">
         <div class="container-fluid">
-            <button type="button" id="sidebarCollapse" class="bars-btn btn btn-link" v-on:click="toggleBar($event)">
-                <i class="fas fa-bars"></i>
-                <span class="title">Navbar</span>
-            </button>
+            <div>
+                <span>r-Ticket</span>
+                <div class="version">v1.0</div>
+            </div>
             <form class="d-flex search-form" v-on:submit="onSubmit">
                 <input class="form-control me-2 flex-1" type="text" placeholder="Search"
                     v-model="search">
@@ -51,8 +49,13 @@
             </form>
         </div>
     </nav>
+    <Topmenu />
 </template>
 <style lang="scss">
+
+    .version {
+        font-size: 0.70rem;
+    }
 
     .search-form {
         .form-control {

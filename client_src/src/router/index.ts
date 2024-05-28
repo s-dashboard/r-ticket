@@ -9,7 +9,7 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       meta: {
-        sideMenu: true,
+        topMenu: true,
         title: 'Dashboard',
         iconCls: 'fa-bolt',
         order: 1
@@ -19,8 +19,8 @@ const router = createRouter({
       path: '/tickets',
       name: 'tickets',
       meta: {
-        sideMenu: true,
-        title: 'Tickets',
+        topMenu: true,
+        title: 'Issues',
         iconCls: 'fa-inbox',
         order: 2
       },

@@ -2,8 +2,8 @@
     import ajax from '@/ajax';
     import type { Client, Ticket } from '@/types';
     import moment from 'moment';
-import { useRouter } from 'vue-router';
-
+    import { useRouter } from 'vue-router';
+    import Editablefield from './Editablefield.vue';
 
     const dateTime = (value: any) => {
         return moment(value).startOf('hour')
@@ -18,14 +18,19 @@ import { useRouter } from 'vue-router';
         ajax.delete(`/api/tickets/${props.ticket?.id}`).then((result) => {
             router.push('/tickets');
         });
+    },
+    onValueChanged = (e: any) => {
+        if(props.ticket) {
+            const data: any = props.ticket;
+            data[e[0]] = e[1];
+        }
     }
 </script>
 <template>
     <div class="container-fluid ticket-header p-2">
         <div class="row">
-            <div class="col ticket-header-title">
-                #{{ props.ticket?.id }} - 
-                <span class="clickable-field" data-name="subject">{{ props.ticket?.subject }}</span>
+            <div class="col ticket-header-title flex">
+                <Editablefield :value="props.ticket?.subject" name="subject" @value:changed="onValueChanged($event)" />
             </div>
             <div class="col-auto">
                 <span class="badge bg-secondary">{{ props.ticket?.state_title }}</span>
